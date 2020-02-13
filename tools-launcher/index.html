@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <div>
+            <button onclick="loadTool(event.target.innerText)">CrossCode</button>
+        </div>
+        <script>
+            const running = {};
+            const path = require('path');
+            const fs = require('fs');
+            let tools = fs.readFileSync(path.join(process.execPath, '../tools-launcher', 'tools.json'), 'utf8');
+            tools = JSON.parse(tools);
+            /**
+             * 
+               b.opener = null
+                b .location = '/assets/node-webkit.html'
+             */
+
+            function loadTool(name) {
+                if (running[name]) {
+                    throw Error('Already running');
+                }
+                require('nw.gui').Window.open('/assets/node-webkit.html', {
+                    icon: '/assets/favicon2.png',
+                    id: "CrossCode"
+                }, function(new_win) {
+                    // new_win.window.onhashchange
+                    // console.log(new_win);
+                });
+
+                
+                
+            }
+        </script>
+    </body>
+</html>
