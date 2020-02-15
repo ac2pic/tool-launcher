@@ -51,12 +51,14 @@ export default class ToolManager {
         return function(new_win) {
             const childWindow = new_win.window;
             running[name] = childWindow;
+            
             // inject stuff here
             new_win.on('document-start', function(window) {
                 window.opener = null;
                 running[name] = window;
                 window.toolsApi = api;
             });
+
             new_win.on('close', function() {
                 
                 delete running[name];
