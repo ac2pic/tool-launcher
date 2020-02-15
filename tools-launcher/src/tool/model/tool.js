@@ -15,8 +15,9 @@ export default class Tool {
     }
 
     get htmlMain() {
-        if (window.DEV_MODE) {
-            return this.config.get('devMain');
+        const devMain = this.config.get('devMain');
+        if (window.DEV_MODE && devMain) {
+            return devMain;
         }
 
         const htmlMain = this.config.get('htmlMain');
