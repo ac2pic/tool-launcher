@@ -1,9 +1,11 @@
 import ToolLoader from "./loader.js";
+import ToolsApi from "./api/tools.js";
 
 export default class ToolManager {
     constructor() {
         this.loader = new ToolLoader;
         this.running = {};
+        this.api = new ToolsApi;
     }
 
     loadTools() {
@@ -48,6 +50,7 @@ export default class ToolManager {
 
     _newWindowGenerator(name) {
         const running = this.running;
+        const api = this.api;
         return function(new_win) {
             const childWindow = new_win.window;
             running[name] = childWindow;
