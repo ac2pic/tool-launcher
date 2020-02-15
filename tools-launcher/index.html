@@ -4,17 +4,16 @@
 
     </head>
     <body>
-        <div id="list">
-			<div hidden>
-				<button id="template" onclick="loadTool(event.target.innerText)">CrossCode</button>
-			</div>
-           
+		<div hidden>
+			<button id="template" onclick="loadTool(event.target.innerText)">CrossCode</button>
+		</div>
+        <div id="tools-list">           
         </div>
         <script>
 			// steps: Detect and load Tools
 			class ToolsApi {}
 			const api = new ToolsApi;
-			const buttonList = document.querySelector('#list');
+			const buttonList = document.querySelector('#tools-list');
 			const template = document.querySelector('#template');
 
 		</script>
