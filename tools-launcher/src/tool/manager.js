@@ -10,14 +10,14 @@ export default class ToolManager {
         this.api = new ToolsCommunicationApi;
         ToolCommunicationClient.comApi = this.api;
         Object.freeze(this.api);
-        /*this.clientObject = {
+        this.clientObject = {
             Communication: {
                 Client: ToolCommunicationClient,
                 Message: ToolMessage
             }
         };
 
-        Object.freeze(this.clientObject.Communication);*/
+        Object.freeze(this.clientObject.Communication);
 
     }
 
@@ -73,16 +73,16 @@ export default class ToolManager {
 
     _newWindowGenerator(name) {
         const running = this.running;
-        const api = this.api;
+        const clientObject = this.clientObject;
         return function(new_win) {
             running[name] = new_win;
             
             // inject stuff here
             new_win.on('document-start', function(window) {
                 window.opener = null;
-                window.ToolsApi = this.clientObject;
-                /*Object.preventExtensions(window.ToolsApi);
-                Object.freeze(window.ToolsApi);*/
+                window.ToolsApi = clientObject;
+                Object.preventExtensions(window.ToolsApi);
+                Object.freeze(window.ToolsApi);
             });
 
             new_win.on('close', function() {
