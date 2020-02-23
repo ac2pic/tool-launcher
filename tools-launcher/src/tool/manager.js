@@ -10,6 +10,15 @@ export default class ToolManager {
         this.api = new ToolsCommunicationApi;
         ToolCommunicationClient.comApi = this.api;
         Object.freeze(this.api);
+        /*this.clientObject = {
+            Communication: {
+                Client: ToolCommunicationClient,
+                Message: ToolMessage
+            }
+        };
+
+        Object.freeze(this.clientObject.Communication);*/
+
     }
 
     loadTools() {
@@ -71,15 +80,16 @@ export default class ToolManager {
             // inject stuff here
             new_win.on('document-start', function(window) {
                 window.opener = null;
-                window.toolsCommunicationApi = api;
-                window.ToolMessage = ToolMessage;
-                window.ToolCommunicationClient = ToolCommunicationClient;
+                window.ToolsApi = this.clientObject;
+                /*Object.preventExtensions(window.ToolsApi);
+                Object.freeze(window.ToolsApi);*/
             });
 
             new_win.on('close', function() {
                 
-                delete running[name];
                 running[name] = undefined;
+                delete running[name];
+                
                 new_win.close(true);
             });
         }
