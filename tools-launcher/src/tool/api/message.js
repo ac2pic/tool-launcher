@@ -6,6 +6,10 @@ export default class ToolMessage {
         this.consumer = null;
     }
 
+    setProvider(provider) {
+        this.provider = provider;
+    }
+
     setConsumer(consumer) {
         this.consumer = consumer;
     }

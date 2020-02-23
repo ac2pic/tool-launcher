@@ -8,6 +8,8 @@ export default class ToolManager {
         this.loader = new ToolLoader;
         this.running = {};
         this.api = new ToolsCommunicationApi;
+        ToolCommunicationClient.comApi = this.api;
+        Object.freeze(this.api);
     }
 
     loadTools() {
