@@ -1,11 +1,13 @@
 import ToolLoader from "./loader.js";
-import ToolsApi from "./api/tools.js";
+import ToolsCommunicationApi from "./api/tools.js";
+import ToolCommunicationClient from "./api/client.js";
+import ToolMessage from "./api/message.js";
 
 export default class ToolManager {
     constructor() {
         this.loader = new ToolLoader;
         this.running = {};
-        this.api = new ToolsApi;
+        this.api = new ToolsCommunicationApi;
     }
 
     loadTools() {
@@ -59,7 +61,9 @@ export default class ToolManager {
             new_win.on('document-start', function(window) {
                 window.opener = null;
                 running[name] = window;
-                window.toolsApi = api;
+                window.toolsCommunicationApi = api;
+                window.ToolMessage = ToolMessage;
+                window.ToolCommunicationClient = ToolCommunicationClient;
             });
 
             new_win.on('close', function() {
