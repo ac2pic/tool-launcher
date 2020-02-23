@@ -28,6 +28,8 @@
 				if (totalRunning > 0) {
 					if (confirm(`Exiting will close ${totalRunning} tool(s). Are you sure you want exit?`)) {
 						toolManager.closeAll();
+					} else {
+						return;
 					}
 				}
 				current_window.close(true);
