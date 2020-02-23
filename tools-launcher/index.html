@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+		<script type="text/javascript" src="src/lib/dexie.js"></script>
     </head>
     <body>
 		<div hidden>
@@ -20,6 +20,18 @@
 			import ToolManager from './src/tool/manager.js';
 			const toolManager = new ToolManager;
 			toolManager.loadTools();
+
+			const current_window = nw.Window.get();
+			current_window.on('close', function() {
+				const totalRunning = toolManager.getTotalRunning();
+
+				if (totalRunning > 0) {
+					if (confirm(`Exiting will close ${totalRunning} tool(s). Are you sure you want exit?`)) {
+						toolManager.closeAll();
+					}
+				}
+				current_window.close(true);
+			});
 		</script>
     </body>
 </html>

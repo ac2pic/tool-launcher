@@ -52,17 +52,25 @@ export default class ToolManager {
         nw.Window.open(tool.htmlMain, config, callback);
     }
 
+    closeAll() {
+        for (const toolName of Object.keys(this.running)) {
+            this.running[toolName].close(true);
+        }
+    }
+
+    getTotalRunning() {
+        return Object.keys(this.running).length;
+    }
+
     _newWindowGenerator(name) {
         const running = this.running;
         const api = this.api;
         return function(new_win) {
-            const childWindow = new_win.window;
-            running[name] = childWindow;
+            running[name] = new_win;
             
             // inject stuff here
             new_win.on('document-start', function(window) {
                 window.opener = null;
-                running[name] = window;
                 window.toolsCommunicationApi = api;
                 window.ToolMessage = ToolMessage;
                 window.ToolCommunicationClient = ToolCommunicationClient;
