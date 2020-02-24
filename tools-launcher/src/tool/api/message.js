@@ -19,7 +19,7 @@ export default class ToolMessage {
     }
 
 
-    reply(type, data) {
-        this.provider.onReply(new ToolMessage(type, data, this.consumer));
+    reply(topic, type, data) {
+        this.provider.onReply(topic, new ToolMessage(type, data, this.consumer));
     }
 }

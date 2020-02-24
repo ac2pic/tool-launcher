@@ -25,7 +25,10 @@ export default class ToolsCommunicationApi {
             this.addTopic(name);
         }
 
-        topic[name].push(subscriber);
+        if (!topic[name].includes(subscriber)) {
+            topic[name].push(subscriber);
+        }
+
     }
 
     hasTopic(name) {
@@ -39,7 +42,7 @@ export default class ToolsCommunicationApi {
 
                 clonedMessage.setConsumer(subscriber);
                 
-                subscriber.onMessage(clonedMessage);
+                subscriber.onMessage(topicName, clonedMessage);
             }
         }
     }

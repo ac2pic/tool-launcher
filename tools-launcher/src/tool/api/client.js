@@ -8,8 +8,8 @@ export default class ToolCommunicationClient {
     }
 
     
-    onMessage(message) {}
+    onMessage(topic, message) {}
 
 
-    onReply(message) {}
+    onReply(topic, message) {}
 }
