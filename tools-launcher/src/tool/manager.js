@@ -8,12 +8,14 @@ export default class ToolManager {
         this.loader = new ToolLoader;
         this.running = {};
         this.api = new ToolsCommunicationApi;
+        this.offlineClasses = {};
         ToolCommunicationClient.comApi = this.api;
         Object.freeze(this.api);
         this.clientObject = {
             Communication: {
                 Client: ToolCommunicationClient,
-                Message: ToolMessage
+                Message: ToolMessage,
+                Api: this.api
             }
         };
 
@@ -21,14 +23,26 @@ export default class ToolManager {
 
     }
 
-    loadTools() {
+    async loadTools() {
         const toolsPath = require('path').join(nw.App.startPath, 'tools/');
         const tools = this.loader.loadTools(toolsPath, '/tools/');
 
         for (const tool of tools) {
+            if (tool.offlineScript) {
+                this.offlineClasses[tool.name] = (await import(tool.offlineScript)).default;
+            }
+
             this._createToolButton(tool);
         }
 
+    }
+
+    createOfflineInstances() {
+        const instanceCopies = {};
+        for (const toolName in this.offlineClasses) {
+            instanceCopies[toolName] = new this.offlineClasses[toolName];
+        }
+        return instanceCopies;
     }
 
     _createToolButton(tool) {
@@ -74,12 +88,14 @@ export default class ToolManager {
     _newWindowGenerator(name) {
         const running = this.running;
         const clientObject = this.clientObject;
+        const offlineInstances = this.createOfflineInstances();
         return function(new_win) {
             running[name] = new_win;
             
             // inject stuff here
             new_win.on('document-start', function(window) {
                 window.opener = null;
+                window.OFFLINE_TOOLS = offlineInstances;
                 window.ToolsApi = clientObject;
                 Object.preventExtensions(window.ToolsApi);
                 Object.freeze(window.ToolsApi);
