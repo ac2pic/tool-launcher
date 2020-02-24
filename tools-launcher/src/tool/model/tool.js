@@ -14,6 +14,13 @@ export default class Tool {
         return this.config.get('name');
     }
 
+    get offlineScript() {
+        const offlineScript = this.config.get('offlineScript');
+        if (offlineScript) {
+            return path.posix.join(this.path, offlineScript);
+        }
+        return null;
+    }
     get htmlMain() {
         const devMain = this.config.get('devMain');
         if (window.DEV_MODE && devMain) {

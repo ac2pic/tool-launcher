@@ -18,6 +18,10 @@ export default class ToolConfig {
         if (config.htmlMain) {
             this.config.htmlMain = config.htmlMain;
         }
+
+        if (config.offlineScript) {
+            this.config.offlineScript = config.offlineScript;
+        }
     }
 
     get(key) {
