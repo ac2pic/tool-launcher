@@ -29,7 +29,7 @@ export default class ToolManager {
 
         for (const tool of tools) {
             if (tool.offlineScript) {
-                this.offlineClasses[tool.name] = (await import(tool.offlineScript)).default;
+                this.offlineClasses[tool.name] = tool.offlineScript;
             }
 
             this._createToolButton(tool);
@@ -37,13 +37,6 @@ export default class ToolManager {
 
     }
 
-    createOfflineInstances() {
-        const instanceCopies = {};
-        for (const toolName in this.offlineClasses) {
-            instanceCopies[toolName] = new this.offlineClasses[toolName];
-        }
-        return instanceCopies;
-    }
 
     _createToolButton(tool) {
         const name = tool.name;
@@ -70,7 +63,6 @@ export default class ToolManager {
         
         config.id = name;
         config.icon = tool.icon;
-
         const callback = this._newWindowGenerator(name);
         nw.Window.open(tool.htmlMain, config, callback);
     }
@@ -88,15 +80,21 @@ export default class ToolManager {
     _newWindowGenerator(name) {
         const running = this.running;
         const clientObject = this.clientObject;
-        const offlineInstances = this.createOfflineInstances();
-        return function(new_win) {
+        const offlineInstances = this.offlineClasses;
+        return (new_win) => {
             running[name] = new_win;
-            
+
             // inject stuff here
             new_win.on('document-start', function(window) {
                 window.opener = null;
-                window.OFFLINE_TOOLS = offlineInstances;
                 window.ToolsApi = clientObject;
+                window.importOfflineScripts = async () => {
+                    const offlineScripts = {};
+                    for (const toolName in offlineInstances) {
+                        offlineScripts[toolName] = (await window.eval(`import("${offlineInstances[toolName]}")`)).default;
+                    }
+                    return offlineScripts;
+                }
                 Object.preventExtensions(window.ToolsApi);
                 Object.freeze(window.ToolsApi);
             });
