@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-		<script type="text/javascript" src="src/lib/dexie.js"></script>
+		<!-- <script type="text/javascript" src="src/lib/dexie.js"></script> -->
     </head>
     <body>
 		<div hidden>
@@ -17,6 +17,7 @@
 		</script>
 		
 		<script type="module">
+			window.DEV_MODE = true;
 			import ToolManager from './src/tool/manager.js';
 			const toolManager = new ToolManager;
 			toolManager.loadTools();
