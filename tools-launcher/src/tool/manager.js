@@ -64,7 +64,13 @@ export default class ToolManager {
         config.id = name;
         config.icon = tool.icon;
         const callback = this._newWindowGenerator(name);
-        nw.Window.open(tool.htmlMain, config, callback);
+        try {
+            nw.Window.open(tool.htmlMain, config, callback);
+        } catch (e) {
+            running[name] = undefined;
+            delete running[name];
+        }
+        
     }
 
     closeAll() {
@@ -100,12 +106,13 @@ export default class ToolManager {
             });
 
             new_win.on('close', function() {
-                
-                running[name] = undefined;
-                delete running[name];
-                
                 new_win.close(true);
             });
+
+            new_win.on("closed", function () {
+                running[name] = undefined;
+                delete running[name];
+             });
         }
     }
 }
