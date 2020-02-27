@@ -96,9 +96,16 @@ export default class ToolManager {
                 window.ToolsApi = clientObject;
                 window.importOfflineScripts = async () => {
                     const offlineScripts = {};
-                    for (const toolName in offlineInstances) {
-                        offlineScripts[toolName] = (await window.eval(`import("${offlineInstances[toolName]}")`)).default;
+                    if (window.location.href.startsWith("chrome")) {
+                        for (const toolName in offlineInstances) {
+                            offlineScripts[toolName] = (await window.eval(`import("${offlineInstances[toolName]}")`)).default;
+                        }
+                    } else {
+                        for (const toolName in offlineInstances) {
+                            offlineScripts[toolName] = (await import(offlineInstances[toolName])).default;
+                        }                      
                     }
+
                     return offlineScripts;
                 }
                 Object.preventExtensions(window.ToolsApi);
