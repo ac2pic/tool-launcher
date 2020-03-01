@@ -1,6 +1,7 @@
 import ToolCommunicationClient from './client.js';
 
 const topic = {};
+window.topic = topic;
 
 export default class ToolsCommunicationApi {
     constructor() {
@@ -15,7 +16,7 @@ export default class ToolsCommunicationApi {
         topic[name] = [];
     }
 
-    subscribeToTopic(name, subscriber) {
+    subToTopic(name, subscriber) {
         if (!(subscriber instanceof ToolCommunicationClient)) {
             throw Error(`Subscriber must be an instance of ToolCommunicationClient`);
         }
@@ -29,6 +30,18 @@ export default class ToolsCommunicationApi {
             topic[name].push(subscriber);
         }
 
+    }
+
+    unsubFromTopic(name, subscriber) {
+        // go through each topic
+
+        if (Array.isArray(topic[name])) {
+            const index = topic[name].indexOf(subscriber);
+
+            if (index > -1) {
+                topic[name].splice(index, 1);
+            }
+        }
     }
 
     hasTopic(name) {
