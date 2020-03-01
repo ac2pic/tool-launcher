@@ -86,6 +86,7 @@ export default class ToolManager {
     _newWindowGenerator(name) {
         const running = this.running;
         const clientObject = this.clientObject;
+        const toolsApi = this.api;
         const offlineInstances = this.offlineClasses;
         return (new_win) => {
             running[name] = new_win;
@@ -93,7 +94,17 @@ export default class ToolManager {
             // inject stuff here
             new_win.on('document-start', function(window) {
                 window.opener = null;
-                window.ToolsApi = clientObject;
+                if (!window.ToolsApi) {
+                    window.ToolsApi = clientObject;
+                    Object.preventExtensions(window.ToolsApi);
+                    Object.freeze(window.ToolsApi);
+                    window.CURRENT_TOOL = name;
+                    Object.defineProperty(window, 'CURRENT_TOOL', {
+                        value: name,
+                        writable: false
+                    });
+                }
+                
                 window.importOfflineScripts = async () => {
                     const offlineScripts = {};
                     if (window.location.href.startsWith("chrome")) {
@@ -108,8 +119,6 @@ export default class ToolManager {
 
                     return offlineScripts;
                 }
-                Object.preventExtensions(window.ToolsApi);
-                Object.freeze(window.ToolsApi);
             });
 
             new_win.on('close', function() {
