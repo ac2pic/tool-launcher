@@ -121,6 +121,14 @@ export default class ToolManager {
                 }
             });
 
+            new_win.on('loaded', function() {
+                // it failed
+                if (new_win.window.location.origin === "null") {
+                    new_win.close(true);
+                    alert("Failed to load " +name);
+                }
+            });
+
             new_win.on('close', function() {
                 new_win.close(true);
             });
