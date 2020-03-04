@@ -7,6 +7,10 @@ export default class ToolsCommunicationApi {
     constructor() {
     }
 
+    /**
+     * 
+     * @param {string} name 
+     */
     addTopic(name) {
         if (this.hasTopic(name)) {
             console.warn(`Topic ${name} already exists.`);
@@ -16,6 +20,11 @@ export default class ToolsCommunicationApi {
         topic[name] = [];
     }
 
+    /**
+     * 
+     * @param {string} name 
+     * @param {ToolCommunicationClient} subscriber 
+     */
     subToTopic(name, subscriber) {
         if (!(subscriber instanceof ToolCommunicationClient)) {
             throw Error(`Subscriber must be an instance of ToolCommunicationClient`);
@@ -32,8 +41,12 @@ export default class ToolsCommunicationApi {
 
     }
 
+    /**
+     * 
+     * @param {string} name 
+     * @param {ToolCommunicationClient} subscriber 
+     */
     unsubFromTopic(name, subscriber) {
-        // go through each topic
 
         if (Array.isArray(topic[name])) {
             const index = topic[name].indexOf(subscriber);
@@ -44,10 +57,19 @@ export default class ToolsCommunicationApi {
         }
     }
 
+    /**
+     * 
+     * @param {string} name 
+     */
     hasTopic(name) {
         return Array.isArray(topic[name]);
     }
 
+    /**
+     * 
+     * @param {string} topicName 
+     * @param {ToolMessage} message 
+     */
     emit(topicName, message) {
         if (this.hasTopic(topicName)) {
             for (const subscriber of topic[topicName]) {
