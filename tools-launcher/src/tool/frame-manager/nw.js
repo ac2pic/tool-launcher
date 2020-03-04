@@ -22,7 +22,6 @@ export default class NwJsToolFrameManager extends BaseToolFrameManager {
         const window = this.getWindow();
         window.addEventListener('load', () => {
             // if it failed
-            debugger;
             if (!alreadyLoaded) {
                 alreadyLoaded = true;
                 this.onLoaded(frame, window.location.origin !== "null");
