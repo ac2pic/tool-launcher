@@ -13,28 +13,33 @@
 			// steps: Detect and load Tools
 			const buttonList = document.querySelector('#tools-list');
 			const template = document.querySelector('#template');
-
 		</script>
 		
 		<script type="module">
 			window.DEV_MODE = true;
 			import ToolManager from './src/tool/manager.js';
+			import {isNw} from './src/platform-check.js';
 			const toolManager = new ToolManager;
 			toolManager.loadTools();
 
-			const current_window = nw.Window.get();
-			current_window.on('close', function() {
-				const totalRunning = toolManager.getTotalRunning();
+			if (isNw) {
+				const current_window = nw.Window.get();
+				current_window.on('close', function() {
+					const totalRunning = toolManager.getTotalRunning();
 
-				if (totalRunning > 0) {
-					if (confirm(`Exiting will close ${totalRunning} tool(s). Are you sure you want exit?`)) {
-						toolManager.closeAll();
-					} else {
-						return;
+					if (totalRunning > 0) {
+						if (confirm(`Exiting will close ${totalRunning} tool(s). Are you sure you want exit?`)) {
+							toolManager.closeAll();
+						} else {
+							return;
+						}
 					}
-				}
-				current_window.close(true);
-			});
+					current_window.close(true);
+				});
+			} else {
+
+			}
+
 		</script>
     </body>
 </html>
