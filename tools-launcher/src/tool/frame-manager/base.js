@@ -34,10 +34,14 @@ export default class BaseToolFrameManager {
 
 
 
-    async open() {}
+    async open() {
+        this.running = true;
+    }
 
 
-    close() {}   
+    close() {
+        this.running = false;
+    }   
 
     getWindow() {
         return this.get().window;

@@ -59,6 +59,9 @@ export default class BrowserToolFrameManager extends BaseToolFrameManager {
     }
 
     close() {
-        this.get().close();
+        if (this.running) {
+            this.running = false;
+            this.get().close();
+        }
     }
 }

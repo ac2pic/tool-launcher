@@ -32,6 +32,7 @@ export default class NwJsToolFrameManager extends BaseToolFrameManager {
         window.addEventListener('beforeunload', function() {
             alreadyLoaded = false;
         });
+
         frame.on('loaded', () => {
             // if it succeeded
             if (!alreadyLoaded) {
@@ -46,6 +47,9 @@ export default class NwJsToolFrameManager extends BaseToolFrameManager {
     }
 
     close() {
-        this.get().close(true);
+        if (this.running) {
+            this.running = false;
+            this.get().close(true);
+        }
     }
 }
