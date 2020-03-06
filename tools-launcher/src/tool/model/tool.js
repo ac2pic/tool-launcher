@@ -4,7 +4,6 @@ export default class Tool {
     constructor(path) {
         this.path = path;
         this.config = new ToolConfig;
-        this.devMode = false;
     }
 
     
@@ -16,8 +15,16 @@ export default class Tool {
         return this.config.get('name');
     }
 
+    get devMode() {
+        return this.config.isDevMode();
+    }
+
+    set devMode(value) {
+        this.config.devMode = !!value;
+    }
+
     get src() {
-        if (this.config.isDevMode()) {
+        if (this.devMode) {
             return this.config.get('devMain')
         }
         return this.path + this.config.get('htmlMain');
