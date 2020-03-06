@@ -1,7 +1,11 @@
 export default class ToolConfig {
     constructor() {
-        this.name = "";
         this.config = {};
+        this.devMode = false;
+    }
+
+    isDevMode() {
+        return this.devMode;
     }
 
     load(config) {
@@ -23,6 +27,7 @@ export default class ToolConfig {
             this.config.offlineScript = config.offlineScript;
         }
     }
+
 
     get(key) {
         if (key === 'name') {
