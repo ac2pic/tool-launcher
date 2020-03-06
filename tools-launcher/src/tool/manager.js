@@ -1,18 +1,21 @@
-import ToolLoader from "./loader.js";
+// import ToolLoader from "./loader.js";
 import ToolsCommunicationApi from "./api/tools.js";
 import ToolCommunicationClient from "./api/client.js";
 import ToolMessage from "./api/message.js";
 import ToolFrameManager from "./frame-manager/choose.js";
+import { isNw } from "../platform-check.js";
+import Tool from "./model/tool.js";
 
 export default class ToolManager {
     constructor() {
-        this.loader = new ToolLoader;
-        this.running = {};
-        window.running = this.running;
+        // this.loader = new ToolLoader;
+        this.frames = {};
+        this.running = 0;
         this.api = new ToolsCommunicationApi;
         this.offlineClasses = {};
         ToolCommunicationClient.comApi = this.api;
         Object.freeze(this.api);
+
         this.clientObject = {
             Communication: {
                 Client: ToolCommunicationClient,
@@ -22,26 +25,47 @@ export default class ToolManager {
         };
 
         Object.freeze(this.clientObject.Communication);
-
     }
 
     async loadTools() {
         const tools = await fetch('/tools/tools.json').then(e => e.json());
         for (const toolName in tools) {
-            let tool = null;
+            let toolConfig = null;
             const toolPath = tools[toolName];
+            let name = '';
             try {
                 
-                tool = await fetch(toolPath + 'tool.config.json').then(e => e.json());
+                toolConfig = await fetch(toolPath + 'tool.config.json').then(e => e.json());
+                name = toolConfig.name || '';
+                if (!name) {
+                    throw Error(`${toolPath} has no name associated with it.`);
+                }
+
+                if (this.frames[name]) {
+                    throw Error(`Duplicate ${name} found at ${toolPath} `);
+                }
+
             } catch (e) {
                 console.log(e);
                 continue;
             }
-            tool.basePath = toolPath;
-            if (tool.offlineScript) {
-                
-                this.offlineClasses[tool.name] = toolPath + tool.offlineScript;
+
+
+           
+            const tool = new Tool(toolPath);
+            tool.load(toolConfig);
+
+            const offlineScriptSrc = tool.offlineScriptSrc; 
+            if (offlineScriptSrc) {
+                this.offlineClasses[name] = offlineScriptSrc;
             }
+            const toolFrame = new ToolFrameManager(tool);
+
+            this.frames[name] = toolFrame;
+            
+
+
+
             this._createToolButton(tool);
         }
     }
@@ -59,40 +83,37 @@ export default class ToolManager {
     }
 
     startTool(tool) {
-        const running = this.running;
-        
         const name = tool.name;
-        if (running[name]) {
-            throw Error(`"${name}" is already running.`);
+        const frame = this.frames[name];
+        
+        if (frame.running) {
+            new Notification(`"${name}" is already running.`, {})
+            return;
         }
 
-        running[name] = true;
+        frame.running = true;
+        this.running += 1;
 
-        let src = tool.htmlMain;
-        if (window.DEV_MODE) {
-            src = tool.basePath + src;
-        }
-
-        const toolFrame = new ToolFrameManager(src);
-        toolFrame.setId(name);
-        toolFrame.setIcon(tool.icon);
-        toolFrame.open().then((frame) => {
-            running[name] = frame;
+        frame.open().then((frame) => {
             this.addListeners(frame, name);
         }).catch(e => {
-            running[name] = undefined;
-            delete running[name];
+            frame.running = false;
+            this.running -= 1;
         });
     }
 
     closeAll() {
-        for (const toolName of Object.keys(this.running)) {
-            this.running[toolName].close();
+        for (const frameName of Object.keys(this.frames)) {
+            const frame = this.frames[frameName];
+
+            if (frame.running) {
+                frame.close();
+            }
         }
     }
 
     getTotalRunning() {
-        return Object.keys(this.running).length;
+        return this.running;
     }
 
     addListeners(frame, name) {
@@ -111,7 +132,7 @@ export default class ToolManager {
                     Object.preventExtensions(window.ToolsApi);
                     Object.freeze(window.ToolsApi);
                 }
-    
+                let baseUrl = '/assets/';
                 if (window.location.href.startsWith("chrome")) {
                     for (const toolName in offlineInstances) {
                         window[toolName] = (await window.eval(`import("${offlineInstances[toolName]}")`)).default;
@@ -119,28 +140,26 @@ export default class ToolManager {
                 } else {
                     for (const toolName in offlineInstances) {
                         window[toolName] = (await import(offlineInstances[toolName])).default;
-                        
+                        baseUrl = 'http://localhost:4000' + baseUrl;
                     }                      
                 }
-                window.dispatchEvent(new CustomEvent('INJECTION_DONE'));
+                window.dispatchEvent(new CustomEvent('INJECTION_DONE', {detail :{baseUrl}}));
             } else {
                 console.log('Loading failed.');
             }
 
         });
 
-        frame.on('loaded', function() {
+        frame.on('loaded', function(frame, loadSuccess) {
             // it failed
-            const window = frame.getWindow();
-            if (window.location.origin === "null") {
+            if (!loadSuccess) {
                 frame.close();
-                alert("Failed to load " + name);
             }
         });
 
-        frame.on("close", function () {
-            running[name] = undefined;
-            delete running[name];
+        frame.on('close', () => {
+            frame.running = false;
+            this.running -= 1;
         });
     }
 }
