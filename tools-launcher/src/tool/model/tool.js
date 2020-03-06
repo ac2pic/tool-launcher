@@ -1,11 +1,13 @@
-import ToolConfig from '../config.js';
-const path = require('path');
+import ToolConfig from './config.js';
+// const path = require('path');
 export default class Tool {
     constructor(path) {
         this.path = path;
         this.config = new ToolConfig;
+        this.devMode = false;
     }
 
+    
     load(config) {
         this.config.load(config);
     }
@@ -14,30 +16,29 @@ export default class Tool {
         return this.config.get('name');
     }
 
-    get offlineScript() {
+    get src() {
+        if (this.config.isDevMode()) {
+            return this.config.get('devMain')
+        }
+        return this.path + this.config.get('htmlMain');
+    }
+
+    get offlineScriptSrc() {
         const offlineScript = this.config.get('offlineScript');
         if (offlineScript) {
-            return path.posix.join(this.path, offlineScript);
+            return this.path + offlineScript;
         }
-        return null;
+        return '';
     }
-    get htmlMain() {
-        const devMain = this.config.get('devMain');
-        if (window.DEV_MODE && devMain) {
-            return devMain;
-        }
 
-        const htmlMain = this.config.get('htmlMain');
-        return path.posix.join(this.path, htmlMain);
-    }
 
     get icon() {
         const icon =  this.config.get('icon');
+        
         if (icon) {
-            return path.posix.join(this.path, icon);
+            return this.path + icon;
         }
 
-        return undefined;
-        
+        return '';
     }
 }
