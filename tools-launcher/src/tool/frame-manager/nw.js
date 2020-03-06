@@ -3,12 +3,13 @@ import BaseToolFrameManager from "./base.js";
 export default class NwJsToolFrameManager extends BaseToolFrameManager {
 
     async open() {
+        const tool = this.getTool();
         const config = {
-            id: this.id,
-            icon: this.icon
+            id: tool.id,
+            icon: tool.icon
         };
         return new Promise((resolve, reject) => {
-            nw.Window.open(this.src, config, (nwWindow) => {
+            nw.Window.open(tool.src, config, (nwWindow) => {
                 this.set(nwWindow);
                 this.addNwListeners();
                 resolve(this);
@@ -24,20 +25,23 @@ export default class NwJsToolFrameManager extends BaseToolFrameManager {
             // if it failed
             if (!alreadyLoaded) {
                 alreadyLoaded = true;
-                this.onLoaded(frame, window.location.origin !== "null");
+                this.onLoaded(this, window.location.origin !== "null");
             }
         });
 
+        window.addEventListener('beforeunload', function() {
+            alreadyLoaded = false;
+        });
         frame.on('loaded', () => {
-            // if it successed
+            // if it succeeded
             if (!alreadyLoaded) {
                 alreadyLoaded = true;
-                this.onLoaded(frame, window.location.origin !== "null");
+                this.onLoaded(this, window.location.origin !== "null");
             }
         });
 
         frame.on('closed', () => {
-            this.onClose(frame);
+            this.onClose(this);
         });
     }
 

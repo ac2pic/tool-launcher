@@ -1,23 +1,16 @@
 export default class BaseToolFrameManager {
-    constructor(src) {
-        this.src = src;
+    constructor(tool) {
+        this.tool = tool;
         this.frame = null;
+        this.running = false;
         this.callbacks = {
             close: [],
             loaded: []
         };
     }
     
-    set(frame) {
-        this.frame = frame;
-    }
-
-    setIcon(iconPath) {
-        this.icon = iconPath;
-    }
-
-    setId(name) {
-        this.id = name;
+    getTool() {
+        return this.tool;
     }
 
     on(type, cb) {
@@ -48,6 +41,10 @@ export default class BaseToolFrameManager {
 
     getWindow() {
         return this.get().window;
+    }
+
+    set(frame) {
+        this.frame = frame;
     }
 
     get() {
