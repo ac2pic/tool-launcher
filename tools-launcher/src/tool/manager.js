@@ -62,10 +62,7 @@ export default class ToolManager {
             const toolFrame = new ToolFrameManager(tool);
 
             this.frames[name] = toolFrame;
-            
-
-
-
+            this.addListeners(toolFrame, name);
             this._createToolButton(tool);
         }
     }
@@ -94,9 +91,7 @@ export default class ToolManager {
         frame.running = true;
         this.running += 1;
 
-        frame.open().then((frame) => {
-            this.addListeners(frame, name);
-        }).catch(e => {
+        frame.open().catch(e => {
             frame.running = false;
             this.running -= 1;
         });
