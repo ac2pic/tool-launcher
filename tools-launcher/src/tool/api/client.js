@@ -1,5 +1,14 @@
+let instance = null;
+
 export default class ToolCommunicationClient {
-    static comApi = null;
+    static set comApi(comClient) {
+        instance = comClient;
+    }
+
+    static get comApi() {
+        return instance;
+    }
+    
     constructor() {}
 
     /**
