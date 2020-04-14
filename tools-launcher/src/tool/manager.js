@@ -118,7 +118,7 @@ export default class ToolManager {
         const offlineInstances = this.offlineClasses;
 
         // inject stuff here
-        frame.on('loaded', async function(frame, loadSuccess) {
+        async function onLoad(frame, loadSuccess) {
             if (loadSuccess) {
                 const window = frame.getWindow();
                 window.opener = null;
@@ -143,7 +143,9 @@ export default class ToolManager {
                 console.log('Loading failed.');
             }
 
-        });
+        }
+        
+        frame.on('loaded', onLoad);
 
         frame.on('loaded', function(frame, loadSuccess) {
             // it failed
