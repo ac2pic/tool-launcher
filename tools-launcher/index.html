@@ -20,7 +20,7 @@
 			import {isNw} from './src/platform-check.js';
 			const toolManager = new ToolManager;
 			toolManager.loadTools();
-
+			window.toolManager = toolManager;
 			if (isNw) {
 				const current_window = nw.Window.get();
 				current_window.on('close', function() {
