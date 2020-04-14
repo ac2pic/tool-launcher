@@ -1,44 +1,47 @@
 <!DOCTYPE html>
 <html>
-    <head>
-		<!-- <script type="text/javascript" src="src/lib/dexie.js"></script> -->
-    </head>
-    <body>
-		<div hidden>
-			<button id="template" onclick="loadTool(event.target.innerText)">CrossCode</button>
-		</div>
-        <div id="tools-list">           
-        </div>
-        <script>
-			// steps: Detect and load Tools
-			const buttonList = document.querySelector('#tools-list');
-			const template = document.querySelector('#template');
-		</script>
-		
-		<script type="module">
-			import ToolManager from './src/tool/manager.js';
-			import {isNw} from './src/platform-check.js';
-			const toolManager = new ToolManager;
-			toolManager.loadTools();
-			window.toolManager = toolManager;
-			if (isNw) {
-				const current_window = nw.Window.get();
-				current_window.on('close', function() {
-					const totalRunning = toolManager.getTotalRunning();
 
-					if (totalRunning > 0) {
-						if (confirm(`Exiting will close ${totalRunning} tool(s). Are you sure you want exit?`)) {
-							toolManager.closeAll();
-						} else {
-							return;
-						}
+<head>
+	<!-- <script type="text/javascript" src="src/lib/dexie.js"></script> -->
+</head>
+
+<body>
+	<div hidden>
+		<button id="template" onclick="loadTool(event.target.innerText)">CrossCode</button>
+	</div>
+	<div id="tools-list">
+	</div>
+	<script>
+		// steps: Detect and load Tools
+		const buttonList = document.querySelector('#tools-list');
+		const template = document.querySelector('#template');
+	</script>
+
+	<script type="module">
+		import ToolManager from './src/tool/manager.js';
+		import { isNw } from './src/platform-check.js';
+		const toolManager = new ToolManager;
+		toolManager.loadTools();
+		window.toolManager = toolManager;
+		if (isNw) {
+			const current_window = nw.Window.get();
+			current_window.on('close', function () {
+				const totalRunning = toolManager.getTotalRunning();
+
+				if (totalRunning > 0) {
+					if (confirm(`Exiting will close ${totalRunning} tool(s). Are you sure you want exit?`)) {
+						toolManager.closeAll();
+					} else {
+						return;
 					}
-					current_window.close(true);
-				});
-			} else {
+				}
+				current_window.close(true);
+			});
+		} else {
 
-			}
+		}
 
-		</script>
-    </body>
+	</script>
+</body>
+
 </html>
