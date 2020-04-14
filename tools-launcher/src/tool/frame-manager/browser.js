@@ -41,8 +41,8 @@ export default class BrowserToolFrameManager extends BaseToolFrameManager {
         const checker = () => {
             timeoutId = setTimeout(checker);
             if (window.document.readyState === "complete") {
-                clearTimeout(timeoutId);
                 if (window.location.href !== "about:blank") {
+                    clearTimeout(timeoutId);
                     if (window.location.origin === "null") {
                         this.onLoaded(this, false);
                     } else {
@@ -52,8 +52,8 @@ export default class BrowserToolFrameManager extends BaseToolFrameManager {
             } else {
                 console.log(window.document.readyState)
             }
-            
-            
+
+
         };
         timeoutId = setTimeout(checker);
     }
