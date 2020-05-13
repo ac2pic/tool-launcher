@@ -5,31 +5,37 @@ export default class BrowserToolFrameManager extends BaseToolFrameManager {
 
     async open() {
 
-        const frame = window.open(this.getTool().src);
+        const frame = window.open(this.getTool().src, this.tool.name + "-window", "width=800,height=800");
 
         this.set(frame);
         this.addBrowserListeners();
         return this;
     }
 
+    _addBrowserUnloadListener(func) {
+        this.getWindow().addEventListener('beforeunload', func);
+    }
+
     addBrowserListeners() {
         const frame = this.get();
-        const window = this.getWindow();
         let didReload;
 
-        window.addEventListener('beforeunload', (event) => {
+        const unloadListener = (event) => {
             didReload = Symbol('DID_RELOAD');
-            window[didReload] = true;
+            this.getWindow()[didReload] = true;
             reloadId = setTimeout(checkReload);
-        });
+        }
 
         let reloadId = -1;
         let checkReload = () => {
             reloadId = setTimeout(checkReload);
-            if (!window[didReload]) {
+            const toolWindow = this.getWindow();
+            if (!toolWindow[didReload]) {
                 console.log('Reloaded');
+                timeoutId = -1;
+                timeoutId = setTimeout(checker);
                 clearTimeout(reloadId);
-            } else if (window.closed) {
+            } else if (toolWindow.closed) {
                 console.log('It closed');
                 this.onClose(this);
                 clearTimeout(reloadId);
@@ -40,17 +46,19 @@ export default class BrowserToolFrameManager extends BaseToolFrameManager {
 
         const checker = () => {
             timeoutId = setTimeout(checker);
-            if (window.document.readyState === "complete") {
-                if (window.location.href !== "about:blank") {
+            const toolWindow = this.getWindow();
+            if (toolWindow.document.readyState === "complete") {
+                if (toolWindow.location.href !== "about:blank") {
                     clearTimeout(timeoutId);
-                    if (window.location.origin === "null") {
+                    if (toolWindow.location.origin === "null") {
                         this.onLoaded(this, false);
                     } else {
+                        this._addBrowserUnloadListener(unloadListener);
                         this.onLoaded(this, true);
                     }
                 }
             } else {
-                console.log(window.document.readyState)
+                console.log(toolWindow.document.readyState)
             }
 
 
