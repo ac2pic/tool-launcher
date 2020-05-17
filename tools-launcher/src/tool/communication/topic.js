@@ -20,7 +20,7 @@ export default class Topic {
     /**
      * 
      * @param {string} topicName 
-     * @param {Client} subscriber 
+     * @param {Tool.Communication.Client} subscriber 
      */
     subscribeTo(topicName, subscriber) {
         if (!(subscriber instanceof Client)) {
@@ -41,9 +41,9 @@ export default class Topic {
     /**
      * 
      * @param {string} topicName 
-     * @param {Client} subscriber 
+     * @param {Tool.Communication.Client} subscriber 
      */
-    unsubscribeTo(topicName, subscriber) {
+    unsubscribeFrom(topicName, subscriber) {
 
         if (Array.isArray(topic[topicName])) {
             const index = topic[topicName].indexOf(subscriber);
@@ -65,7 +65,7 @@ export default class Topic {
     /**
      * 
      * @param {string} topicName 
-     * @param {Message} message 
+     * @param {Tool.Communication.Message} message 
      */
     emit(topicName, message) {
         if (this.has(topicName)) {
