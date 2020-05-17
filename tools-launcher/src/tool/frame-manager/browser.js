@@ -20,7 +20,7 @@ export default class BrowserToolFrameManager extends BaseToolFrameManager {
         const frame = this.get();
         let didReload;
 
-        const unloadListener = (event) => {
+        const unloadListener = () => {
             didReload = Symbol('DID_RELOAD');
             this.getWindow()[didReload] = true;
             reloadId = setTimeout(checkReload);
