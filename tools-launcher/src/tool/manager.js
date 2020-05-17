@@ -1,7 +1,7 @@
 // import ToolLoader from "./loader.js";
-import ToolsCommunicationApi from "./api/tools.js";
-import ToolCommunicationClient from "./api/client.js";
-import ToolMessage from "./api/message.js";
+import Topic from "./communication/topic.js";
+import Client from "./api/client.js";
+import Message from "./api/message.js";
 import ToolFrameManager from "./frame-manager/choose.js";
 import { isNw } from "../platform-check.js";
 import Tool from "./model/tool.js";
@@ -11,16 +11,16 @@ export default class ToolManager {
         // this.loader = new ToolLoader;
         this.frames = {};
         this.running = 0;
-        this.api = new ToolsCommunicationApi;
+        this.topic = new Topic;
         this.offlineClasses = {};
-        ToolCommunicationClient.comApi = this.api;
-        Object.freeze(this.api);
+        Client.topicInstance = this.topic;
+        Object.freeze(this.topic);
 
         this.clientObject = {
             Communication: {
-                Client: ToolCommunicationClient,
-                Message: ToolMessage,
-                Api: this.api
+                Client: Client,
+                Message: Message,
+                Topic: this.topic
             }
         };
 
@@ -34,7 +34,7 @@ export default class ToolManager {
             const toolPath = tools[toolName];
             let name = '';
             try {
-                
+
                 toolConfig = await fetch(toolPath + 'tool.config.json').then(e => e.json());
                 name = toolConfig.name || '';
                 if (!name) {
@@ -51,11 +51,11 @@ export default class ToolManager {
             }
 
 
-           
+
             const tool = new Tool(toolPath);
             tool.load(toolConfig);
 
-            const offlineScriptSrc = tool.offlineScriptSrc; 
+            const offlineScriptSrc = tool.offlineScriptSrc;
             if (offlineScriptSrc) {
                 this.offlineClasses[name] = offlineScriptSrc;
             }
@@ -71,7 +71,7 @@ export default class ToolManager {
         const name = tool.name;
         const button = template.cloneNode();
         button.innerText = name;
-        
+
         button.onclick = () => {
             this.startTool(tool);
         };
@@ -82,7 +82,7 @@ export default class ToolManager {
     startTool(tool) {
         const name = tool.name;
         const frame = this.frames[name];
-        
+
         if (frame.running) {
             new Notification(`"${name}" is already running.`, {})
             return;
@@ -114,7 +114,6 @@ export default class ToolManager {
     addListeners(frame, name) {
         const running = this.running;
         const clientObject = this.clientObject;
-        const toolsApi = this.api;
         const offlineInstances = this.offlineClasses;
 
         // inject stuff here
@@ -122,10 +121,10 @@ export default class ToolManager {
             if (loadSuccess) {
                 const window = frame.getWindow();
                 window.opener = null;
-                if (!window.ToolsApi) {
-                    window.ToolsApi = clientObject;
-                    Object.preventExtensions(window.ToolsApi);
-                    Object.freeze(window.ToolsApi);
+                if (!window.Tool) {
+                    window.Tool = clientObject;
+                    Object.preventExtensions(window.Tool);
+                    Object.freeze(window.Tool);
                 }
                 let baseUrl = '/assets/';
                 if (window.location.href.startsWith("chrome")) {
@@ -136,18 +135,18 @@ export default class ToolManager {
                     for (const toolName in offlineInstances) {
                         window[toolName] = (await import(offlineInstances[toolName])).default;
                         baseUrl = 'http://localhost:4000' + baseUrl;
-                    }                      
+                    }
                 }
-                window.dispatchEvent(new CustomEvent('INJECTION_DONE', {detail :{baseUrl}}));
+                window.dispatchEvent(new CustomEvent('INJECTION_DONE', { detail: { baseUrl } }));
             } else {
                 console.log('Loading failed.');
             }
 
         }
-        
+
         frame.on('loaded', onLoad);
 
-        frame.on('loaded', function(frame, loadSuccess) {
+        frame.on('loaded', function (frame, loadSuccess) {
             // it failed
             if (!loadSuccess) {
                 frame.close();

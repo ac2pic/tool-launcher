@@ -1,11 +1,11 @@
-export default class ToolMessage {
+export default class Message {
     /**
      * 
      * @param {string} type 
      * @param {string} data 
      * @param {ToolCommunicationClient} provider
      */
-    constructor(type, data, provider){
+    constructor(type, data, provider) {
         this.type = type;
         this.data = data;
         this.provider = provider;
@@ -33,7 +33,7 @@ export default class ToolMessage {
      * @returns {ToolMessage} 
      */
     clone() {
-        return new ToolMessage(this.type, this.data, this.provider);
+        return new Message(this.type, this.data, this.provider);
     }
 
     /**
@@ -43,6 +43,6 @@ export default class ToolMessage {
      * @param {any} data needing to be transferred
      */
     reply(topic, type, data) {
-        this.provider.onReply(topic, new ToolMessage(type, data, this.consumer));
+        this.provider.onReply(topic, new Message(type, data, this.consumer));
     }
 }
