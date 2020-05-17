@@ -3,7 +3,7 @@ export default class Message {
      * 
      * @param {string} type 
      * @param {string} data 
-     * @param {ToolCommunicationClient} provider
+     * @param {Tool.Communication.Client} provider
      */
     constructor(type, data, provider) {
         this.type = type;
@@ -14,7 +14,7 @@ export default class Message {
 
     /**
      * 
-     * @param {ToolCommunicationClient} provider 
+     * @param {Tool.Communication.Client} provider 
      */
     setProvider(provider) {
         this.provider = provider;
@@ -23,14 +23,14 @@ export default class Message {
 
     /**
      * 
-     * @param {ToolCommunicationClient} consumer 
+     * @param {Tool.Communication.Client} consumer 
      */
     setConsumer(consumer) {
         this.consumer = consumer;
     }
 
     /**
-     * @returns {ToolMessage} 
+     * @returns {Tool.Communication.Message} 
      */
     clone() {
         return new Message(this.type, this.data, this.provider);
