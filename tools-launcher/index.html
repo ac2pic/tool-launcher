@@ -38,7 +38,12 @@
 				current_window.close(true);
 			});
 		} else {
-
+			window.addEventListener('beforeunload', function (e) {
+				const totalRunning = toolManager.getTotalRunning();
+				if (totalRunning > 0) {
+					toolManager.closeAll();
+				}
+			})
 		}
 
 	</script>
