@@ -1,7 +1,7 @@
 // import ToolLoader from "./loader.js";
 import Topic from "./communication/topic.js";
-import Client from "./api/client.js";
-import Message from "./api/message.js";
+import Client from "./communication/client.js";
+import Message from "./communication/message.js";
 import ToolFrameManager from "./frame-manager/choose.js";
 import { isNw } from "../platform-check.js";
 import Tool from "./model/tool.js";
@@ -112,7 +112,6 @@ export default class ToolManager {
     }
 
     addListeners(frame, name) {
-        const running = this.running;
         const clientObject = this.clientObject;
         const offlineInstances = this.offlineClasses;
 
