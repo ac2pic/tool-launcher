@@ -63,7 +63,11 @@ export default class ToolManager {
 
             this.frames[name] = toolFrame;
             this.addListeners(toolFrame, name);
-            this._createToolButton(tool);
+            
+            // no longer require theses so it is possible to have hidden tools
+            if (toolConfig.htmlMain || toolConfig.devMain) {
+                this._createToolButton(tool);
+            }
         }
     }
 
