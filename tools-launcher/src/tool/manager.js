@@ -45,6 +45,7 @@ export default class ToolManager {
             }
         } else {
             // ask server for all tools stuff
+            tools = await fetch('/api/get-tools').then(e => e.json());
         }
         return tools;
     }
