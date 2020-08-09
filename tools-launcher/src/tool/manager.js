@@ -27,22 +27,39 @@ export default class ToolManager {
         Object.freeze(this.clientObject.Communication);
     }
 
-    async loadTools() {
-        const tools = await fetch('/tools/tools.json').then(e => e.json());
-        for (const toolName in tools) {
-            let toolConfig = null;
-            const toolPath = tools[toolName];
-            let name = '';
-            try {
+    async getTools() {
+        const tools = [];
+        if (isNw) {
+            const fs = require('fs');
+            const path = require('path');
+            // check path 
+            const files = fs.readdirSync('tools');
+            for (const file of files) {
+                try {
+                    const relativePath = path.posix.join('tools', file + '/');
+                    const toolConfigPath = path.posix.join(relativePath, 'tool.config.json');
+                    const toolConfig = JSON.parse(fs.readFileSync(toolConfigPath, 'utf8'));
+                    toolConfig.path = '/' + relativePath;
+                    tools.push(toolConfig);
+                } catch (e) {}
+            }
+        } else {
+            // ask server for all tools stuff
+        }
+        return tools;
+    }
 
-                toolConfig = await fetch(toolPath + 'tool.config.json').then(e => e.json());
-                name = toolConfig.name || '';
-                if (!name) {
-                    throw Error(`${toolPath} has no name associated with it.`);
+    async loadTools() {
+        const tools = await this.getTools();
+        for (const tool of tools) {
+            console.log(tool);
+            try {
+                if (!tool.name) {
+                    throw Error(`${tool.path} has no name associated with it.`);
                 }
 
-                if (this.frames[name]) {
-                    throw Error(`Duplicate ${name} found at ${toolPath} `);
+                if (this.frames[tool.name]) {
+                    throw Error(`Duplicate ${tool.name} found at ${tool.path} `);
                 }
 
             } catch (e) {
@@ -50,23 +67,21 @@ export default class ToolManager {
                 continue;
             }
 
+            const toolInstance = new Tool(tool.path);
+            toolInstance.load(tool);
 
-
-            const tool = new Tool(toolPath);
-            tool.load(toolConfig);
-
-            const offlineScriptSrc = tool.offlineScriptSrc;
+            const offlineScriptSrc = toolInstance.offlineScriptSrc;
             if (offlineScriptSrc) {
-                this.offlineClasses[name] = offlineScriptSrc;
+                this.offlineClasses[tool.name] = offlineScriptSrc;
             }
-            const toolFrame = new ToolFrameManager(tool);
+            const toolFrame = new ToolFrameManager(toolInstance);
 
-            this.frames[name] = toolFrame;
-            this.addListeners(toolFrame, name);
+            this.frames[tool.name] = toolFrame;
+            this.addListeners(toolFrame, tool.name);
             
             // no longer require theses so it is possible to have hidden tools
-            if (toolConfig.htmlMain || toolConfig.devMain) {
-                this._createToolButton(tool);
+            if (tool.htmlMain || tool.devMain) {
+                this._createToolButton(toolInstance);
             }
         }
     }
@@ -131,13 +146,14 @@ export default class ToolManager {
                 }
                 let baseUrl = '/assets/';
                 if (window.location.href.startsWith("chrome")) {
+                    baseUrl = location.origin + baseUrl;
                     for (const toolName in offlineInstances) {
                         window[toolName] = (await window.eval(`import("${offlineInstances[toolName]}")`)).default;
                     }
                 } else {
+                    baseUrl = 'http://localhost:4000' + baseUrl;
                     for (const toolName in offlineInstances) {
                         window[toolName] = (await import(offlineInstances[toolName])).default;
-                        baseUrl = 'http://localhost:4000' + baseUrl;
                     }
                 }
                 window.dispatchEvent(new CustomEvent('INJECTION_DONE', { detail: { baseUrl } }));
